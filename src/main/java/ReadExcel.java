@@ -91,6 +91,10 @@ public class ReadExcel {
                                         System.out.println("HIBA!!!: " + string);
                                     }
 
+                                    if (letezikeMar(string, index)){
+                                        System.out.println("Ez az OM már létezik!: " + string);
+                                    }
+
                                     tanulo[index].setAzonosito(string);
                                     break;
                                 case 2:
@@ -187,6 +191,24 @@ public class ReadExcel {
     public static String replaceAtTheEnd(String input){
         input = input.replaceAll("\\s+$", "");
         return input;
+    }
+
+
+    public boolean letezikeMar(String string, int index){
+        boolean nemLetezik =  true;
+
+        for (int i = 1; i < index; i++){
+            if (tanulo[i].getAzonosito().toString().contentEquals(string) &&
+                    !tanulo[index].getNev().toString().contentEquals(tanulo[i].getNev().toString())){
+                nemLetezik = false;
+            }
+        }
+
+        if (!nemLetezik){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
 
