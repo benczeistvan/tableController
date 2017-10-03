@@ -17,9 +17,11 @@ public class ReadExcel {
     public String DEST = "/Users/istvan/GitHub/KIR/BAKS.xls";
     public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
     public String DEST_SZILVER = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
+    public int rossz;
 
 
     public boolean read() {
+        rossz = 0;
         try {
 
             //
@@ -92,7 +94,9 @@ public class ReadExcel {
                                     tanulo[index].setAzonosito(string);
                                     break;
                                 case 2:
-                                    tanulo[index].setNev(cellData.toString());
+                                    String neve = cellData.toString();
+                                    neve = replaceAtTheEnd(neve);
+                                    tanulo[index].setNev(neve);
                                     break;
                                 case 8:
                                     tanulo[index].setAnyanev(cellData.toString());
@@ -124,13 +128,27 @@ public class ReadExcel {
 
 
                             if (azonositoExport.contentEquals(tanulo[index].getAzonosito())){
-                               System.out.println(tanulo[index].getAzonosito());
+                               //System.out.println(index + " " + tanulo[index].getAzonosito());
+                                int k = 0;
+                                for (Iterator<Cell> cellExportIterator = rowExport.cellIterator(); cellExportIterator.hasNext(); ) {
+                                    Cell cellExportData = cellExportIterator.next();
+                                    k++;
+
+                                    switch (k) {
+                                        case 2:
+
+                                            if (!cellExportData.toString().contentEquals(tanulo[index].getNev())) {
+                                                rossz++;
+                                                System.out.println("KIR: " + cellExportData.toString() + "\nGABI: " + tanulo[index].getNev());
+                                                System.out.println("Nem egyezik: " + tanulo[index].getAzonosito() + "\n");
+                                            }
+                                    }
+                                }
+
                             }else{
                                // System.out.println("");
                             }
 
-//                            for (Iterator<Cell> cellExportIterator = row.cellIterator(); cellExportIterator.hasNext(); ) {
-//                                Cell cellExportData = cellExportIterator.next();
 
                                 //if (cellExportData.toString() != tanulo[index].get)
                         }
@@ -155,7 +173,7 @@ public class ReadExcel {
 
 
             //System.out.println("na: " + tanulo[1].getNev());
-
+            System.out.println("\n\nEnnyi nem egyezik: " + rossz);
             return true;
         }
         catch (Exception exception) {
@@ -164,6 +182,11 @@ public class ReadExcel {
         }
 
         return false;
+    }
+
+    public static String replaceAtTheEnd(String input){
+        input = input.replaceAll("\\s+$", "");
+        return input;
     }
 }
 

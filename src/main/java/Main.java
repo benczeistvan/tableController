@@ -37,4 +37,9 @@ public class Main {
 //            System.out.println("modify okay");
 //        }
     }
+
+    public static String replaceAtTheEnd(String input){
+        input = input.replaceAll("\\s+$", "");
+        return input;
+    }
 }
