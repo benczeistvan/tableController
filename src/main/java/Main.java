@@ -5,16 +5,23 @@ import org.apache.poi.ss.usermodel.Row;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Iterator;
 
 public class Main {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         ReadExcel readExcel = new ReadExcel();
 
         if (readExcel.read() == true){
             System.out.println("Read oke");
         }
+
+        //WriteExcel writeExcel = new WriteExcel();
+
+//        if (writeExcel.write("SZIA", 6,5)== true){
+//            System.out.println("Write oke");
+//        }
 
 //        for (int i = 0; i < 10; i++){
 //            System.out.println(readExcel.tanulo[i].getAzonosito());

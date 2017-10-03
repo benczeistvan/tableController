@@ -14,7 +14,7 @@ public class ReadExcel {
 
     public Tanulo tanulo[] = new Tanulo[3400];
     public int index;
-    public String DEST = "/Users/istvan/GitHub/KIR/BAKS.xls";
+    public String DEST = "/Users/istvan/GitHub/BAKS.xls";
     public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
     public String DEST_SZILVER = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
     public int rossz;
@@ -22,6 +22,9 @@ public class ReadExcel {
 
     public boolean read() {
         rossz = 0;
+
+        WriteExcel writeExcel = new WriteExcel();
+
         try {
 
             //
@@ -92,10 +95,11 @@ public class ReadExcel {
                                     }
 
                                     if (letezikeMar(string, index)){
-                                        System.out.println("Ez az OM már létezik!: " + string);
+                                        System.out.println("Ez az OM már létezik!: " + string + "\n");
+                                        tanulo[index].setAzonosito("HIBA");
+                                    }else {
+                                        tanulo[index].setAzonosito(string);
                                     }
-
-                                    tanulo[index].setAzonosito(string);
                                     break;
                                 case 2:
                                     String neve = cellData.toString();
@@ -125,9 +129,6 @@ public class ReadExcel {
 
                             String azonositoExport = rowExport.cellIterator().next().toString();
 
-
-
-
                             //string.indexOf('a')
 
 
@@ -143,8 +144,14 @@ public class ReadExcel {
 
                                             if (!cellExportData.toString().contentEquals(tanulo[index].getNev())) {
                                                 rossz++;
-                                                System.out.println("KIR: " + cellExportData.toString() + "\nGABI: " + tanulo[index].getNev());
+                                                String kirAdat = cellExportData.toString();
+                                                System.out.println("KIR: " + kirAdat + "\nGABI: " + tanulo[index].getNev());
                                                 System.out.println("Nem egyezik: " + tanulo[index].getAzonosito() + "\n");
+                                                //kirAdat += " JAVITVA";
+                                                //System.out.println(index);
+                                                //Az indexhez annyit kell hozzaadni amennyivel csuszik a sorszam az excelhez kepest
+                                                writeExcel.write(kirAdat, index + 5, 2, i, DEST);
+                                                ///IDE KELL BETENNI A VALTOZTATAS A WRITEEXLCELT
                                             }
                                     }
                                 }
