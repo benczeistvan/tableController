@@ -95,8 +95,9 @@ public class ReadExcel {
                                     }
 
                                     if (letezikeMar(string, index)){
-                                        System.out.println("Ez az OM már létezik!: " + string + "\n");
-                                        tanulo[index].setAzonosito("HIBA");
+                                        System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index + "\n");
+                                        string += "HIBA";
+                                        tanulo[index].setAzonosito(string);
                                     }else {
                                         tanulo[index].setAzonosito(string);
                                     }
@@ -145,6 +146,7 @@ public class ReadExcel {
                                             if (!cellExportData.toString().contentEquals(tanulo[index].getNev())) {
                                                 rossz++;
                                                 String kirAdat = cellExportData.toString();
+                                                System.out.println("Hibás név:");
                                                 System.out.println("KIR: " + kirAdat + "\nGABI: " + tanulo[index].getNev());
                                                 System.out.println("Nem egyezik: " + tanulo[index].getAzonosito() + "\n");
                                                 //kirAdat += " JAVITVA";
@@ -152,6 +154,20 @@ public class ReadExcel {
                                                 //Az indexhez annyit kell hozzaadni amennyivel csuszik a sorszam az excelhez kepest
                                                 writeExcel.write(kirAdat, index + 5, 2, i, DEST);
                                                 ///IDE KELL BETENNI A VALTOZTATAS A WRITEEXLCELT
+                                            }
+                                            break;
+
+                                        case 3:
+                                            if (!cellExportData.toString().contentEquals(tanulo[index].getAnyanev())) {
+                                                rossz++;
+                                                String kirAdat = cellExportData.toString();
+                                                System.out.println("Hibás Anyja neve:");
+                                                System.out.println("KIR: " + kirAdat + "\nGABI: " + tanulo[index].getAnyanev());
+                                                System.out.println("Nem egyezik: " + tanulo[index].getAzonosito() + "\n");
+                                                //kirAdat += " JAVITVA";
+                                                //System.out.println(index);
+                                                //Az indexhez annyit kell hozzaadni amennyivel csuszik a sorszam az excelhez kepest
+                                                writeExcel.write(kirAdat, index + 5, 8, i, DEST);
                                             }
                                     }
                                 }
