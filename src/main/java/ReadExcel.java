@@ -5,7 +5,12 @@ import org.apache.poi.ss.usermodel.Row;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.*;
 
 /**
  * Created by lbene on 17.08.2017.
@@ -14,7 +19,7 @@ public class ReadExcel {
 
     public Tanulo tanulo[] = new Tanulo[3400];
     public int index;
-    public String DEST = "/Users/istvan/GitHub/BAKS.xls";
+    public String DEST = "/Users/istvan/Documents/kir/Telephelyek/CLASSIC/CSONGRÁD  Kossuth tér 6.         2017-2018. tanév.xls";
     public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
     public String DEST_SZILVER = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
     public int rossz;
@@ -45,6 +50,7 @@ public class ReadExcel {
 
             int i = -1;
             do {
+                start:
                 i++;
                 HSSFSheet sheet = workbook.getSheetAt(i);
                 //System.out.println(workbook.getSheetName(i).toString());
@@ -56,9 +62,10 @@ public class ReadExcel {
                 //////////////
                 /////VEGIG MEGYEK AZ EXCELLEN
                 ////////////
+                Row row;
                 outerloop:
                 for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
-                    Row row = rowIterator.next();
+                    row = rowIterator.next();
                     index++;
                     j = 0;
                     if (index > kiszur){
@@ -68,18 +75,26 @@ public class ReadExcel {
                         kiszur = 0;
 
                         if (row.cellIterator().next().toString().contentEquals("")){
+                           // System.out.println(index);
                             break;
                         }
 
+
+
+
+
+                        ///////////VEGIG MEGYEK A SAJAT EXCEL sorain
+                        /////////////
                         for (Iterator<Cell> cellIterator = row.cellIterator(); cellIterator.hasNext(); ) {
                             Cell cellData = cellIterator.next();
-//                            if (cellData.toString() == ""){
-//                                System.out.println("BREAK");
-//                                break;
-//                            }
-                            // todo work with the data
+ //                            todo work with the data
                             j++;
                             switch (j) {
+//                                case 1:
+//                                    if (cellData.toString() == ""){
+//                                        //System.out.println("BREAK " + index);
+//
+//                                    }
                                 case 5:
                                     String string = cellData.toString();
                                     if (string.indexOf('.') != 0){
@@ -91,12 +106,12 @@ public class ReadExcel {
                                     }
 
                                     if (string.indexOf('7') !=0 ){
-                                        System.out.println("HIBA!!!: " + string);
+                                        System.out.println("\nHIBA!!!: " + string);
                                     }
 
                                     if (letezikeMar(string, index)){
-                                        System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index + "\n");
-                                        string += "HIBA";
+                                        System.out.println("\nEz az OM már létezik!: " + string + "\nIndex: " + index + "\n");
+                                        string += "\nHIBA";
                                         tanulo[index].setAzonosito(string);
                                     }else {
                                         tanulo[index].setAzonosito(string);
@@ -123,8 +138,8 @@ public class ReadExcel {
                                     break;
                             }
                         }
-                        //System.out.println(index + " " + tanulo[index].getAzonosito());
 
+                        //////VEGIG MEGYEK A KIR sorain
                         for (Iterator<Row> rowExportIterator = sheetExport.iterator(); rowExportIterator.hasNext();){
                             Row rowExport = rowExportIterator.next();
 
@@ -146,7 +161,7 @@ public class ReadExcel {
                                             if (!cellExportData.toString().contentEquals(tanulo[index].getNev())) {
                                                 rossz++;
                                                 String kirAdat = cellExportData.toString();
-                                                System.out.println("Hibás név:");
+                                                System.out.println("\nHibás név:");
                                                 System.out.println("KIR: " + kirAdat + "\nGABI: " + tanulo[index].getNev());
                                                 System.out.println("Nem egyezik: " + tanulo[index].getAzonosito() + "\n");
                                                 //kirAdat += " JAVITVA";
@@ -161,7 +176,7 @@ public class ReadExcel {
                                             if (!cellExportData.toString().contentEquals(tanulo[index].getAnyanev())) {
                                                 rossz++;
                                                 String kirAdat = cellExportData.toString();
-                                                System.out.println("Hibás Anyja neve:");
+                                                System.out.println("\nHibás Anyja neve:");
                                                 System.out.println("KIR: " + kirAdat + "\nGABI: " + tanulo[index].getAnyanev());
                                                 System.out.println("Nem egyezik: " + tanulo[index].getAzonosito() + "\n");
                                                 //kirAdat += " JAVITVA";
@@ -169,6 +184,30 @@ public class ReadExcel {
                                                 //Az indexhez annyit kell hozzaadni amennyivel csuszik a sorszam az excelhez kepest
                                                 writeExcel.write(kirAdat, index + 5, 8, i, DEST);
                                             }
+                                            break;
+
+                                        case 4:
+//                                                String datum = cellExportData.toString();
+//                                                String nap;
+//                                                String honap;
+//                                                String ev;
+//                                                String datum_KIR_jo;
+//
+//                                                ev = datum.substring(0, datum.indexOf('.'));
+//                                                datum = datum.replace(ev + ".", "");
+//
+//                                                honap = datum.substring(1, datum.indexOf('.'));
+//                                                datum = datum.replace(ev + ".", "");
+//
+//                                                nap = datum.substring(1, datum.indexOf('.'));
+//
+//                                                datum_KIR_jo = ev + "/" + honap + "/" + nap;
+//                                                //System.out.println(datum_KIR_jo + " " + (index+5) + " " + i);
+                                                //System.out.print(".");
+                                                writeExcel.write(cellExportData.toString(), index + 5, 7, i, DEST);
+
+                                            break;
+
                                     }
                                 }
 
@@ -188,7 +227,7 @@ public class ReadExcel {
 
                 }
 
-
+                end1:;
             }while(!workbook.getSheetName(i).contentEquals("Ö.2017."));
             //for (int i = 0; i < workbook.getNumberOfSheets(); i++){
 
