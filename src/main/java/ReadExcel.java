@@ -21,9 +21,9 @@ public class ReadExcel {
 
     public Tanulo tanulo[] = new Tanulo[3400];
     public int index;
-    public String DEST = "/Users/istvan/Documents/kir/Telephelyek/CLASSIC/CSONGRÁD  Kossuth tér 6.         2017-2018. tanév.xls";
-    public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
-    public String DEST_SZILVER = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
+    //public String DEST = "/Users/istvan/Documents/kir/Telephelyek/CLASSIC/CSONGRÁD  Kossuth tér 6.         2017-2018. tanév.xls";
+    //public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
+    //public String DEST_SZILVER = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
     public int rossz;
     public int nincsMeg;
     public boolean egyoszlop = true;
@@ -35,17 +35,22 @@ public class ReadExcel {
         int sajatSzuletes = 7;
         int sajatAzonosito = 5;
 
+        public boolean datumcsere = false;
 
-        public boolean datumcsere = true;
-
-    public boolean read() throws IOException {
+    public boolean read(String DEST, String szilverClassic) throws IOException {
         rossz = 0;
         nincsMeg = 0;
 
         if (egyoszlopos(DEST)){
-            sajatAnya--;
-            sajatSzuletes--;
-            sajatAzonosito--;
+            System.out.println("Egy oszlopos");
+            sajatAnya = 7;
+            sajatSzuletes = 6;
+            sajatAzonosito = 4;
+        }else{
+            System.out.println("Ket oszlopos");
+            sajatAnya = 8;
+            sajatSzuletes = 7;
+            sajatAzonosito = 5;
         }
 
         WriteExcel writeExcel = new WriteExcel();
@@ -56,7 +61,7 @@ public class ReadExcel {
             FileInputStream file = new FileInputStream(new File(DEST));
             HSSFWorkbook workbook = new HSSFWorkbook(file);
 
-            FileInputStream fileExport = new FileInputStream(new File(DEST_CLASSIC));
+            FileInputStream fileExport = new FileInputStream(new File(szilverClassic));
             HSSFWorkbook workbookExport = new HSSFWorkbook(fileExport);
             HSSFSheet sheetExport = workbookExport.getSheetAt(0);
 
@@ -75,6 +80,10 @@ public class ReadExcel {
                 i++;
                 HSSFSheet sheet = workbook.getSheetAt(i);
                 //System.out.println(workbook.getSheetName(i).toString());
+
+                if (workbook.getSheetName(i).contentEquals("Ki2017.")){
+                    return true;
+                }
 
                 index = 0;
                 int j = 0;
@@ -145,10 +154,12 @@ public class ReadExcel {
 
                                     if (string.indexOf('7') != 0) {
                                         System.out.println("HIBA!!!: " + string);
+                                        System.out.println(tanulo[index].getNev() + "\n");
                                     }
 
                                     if (letezikeMar(string, index)) {
                                         System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index + "\n");
+                                        System.out.println("Nev: " + tanulo[i].getNev() + "\n");
                                         string += "HIBA";
                                         tanulo[index].setAzonosito(string);
                                     } else {
@@ -277,6 +288,8 @@ public class ReadExcel {
                     }
                     break;
                 }
+
+
             }while(!workbook.getSheetName(i).contentEquals("Ö.2017."));
             //for (int i = 0; i < workbook.getNumberOfSheets(); i++){
 
@@ -290,13 +303,14 @@ public class ReadExcel {
             //System.out.println("na: " + tanulo[1].getNev());
             System.out.println("\n\nEnnyi nem egyezik: " + rossz);
             System.out.println("Ennyit nem találtam meg az exportba: " + nincsMeg);
+            file.close();
+            fileExport.close();
             return true;
         }
         catch (Exception exception) {
 
             System.out.println("HIBA BASSZAMEG: " + exception);
         }
-
         return false;
     }
 
@@ -340,27 +354,32 @@ public class ReadExcel {
         FileInputStream file = new FileInputStream(new File(DEST));
         HSSFWorkbook workbook = new HSSFWorkbook(file);
         HSSFSheet sheet = workbook.getSheetAt(0);
-        boolean az = true;
+        boolean az = false;
         int kiszur = 5;
+        int sajatIndex= 0;
 
+        overloop:
         for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
             Row row = rowIterator.next();
             int j = 0;
-            if (index > kiszur) {
+            sajatIndex++;
+            if (sajatIndex > kiszur) {
                 if (kiszur == 5) {
-                    index = 1;
+                    sajatIndex= 1;
                 }
                 kiszur = 0;
 
 
                 for (Iterator<Cell> cellIterator = row.cellIterator(); cellIterator.hasNext(); ) {
-                    Cell cellData = cellIterator.next();
                     j++;
+                    Cell cellData = cellIterator.next();
                     if (j == 4) {
-                        if (cellData.toString().length() < 4) {
-                            System.out.println(cellData.toString());
-                            az = false;
+                        if (cellData.toString().length() > 4) {
+                            //System.out.println(cellData.toString());
+                            az = true;
+                            return az;
                         }
+                        return az;
                     }
                 }
             }
