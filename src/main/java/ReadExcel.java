@@ -5,6 +5,8 @@ import org.apache.poi.ss.usermodel.Row;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,26 +21,32 @@ public class ReadExcel {
 
     public Tanulo tanulo[] = new Tanulo[3400];
     public int index;
-    public String DEST = "/Users/istvan/Documents/kir/Telephelyek/CLASSIC/PUSZTASZER Kossuth u. 51.            2017-2018. tanév.xls";
+    public String DEST = "/Users/istvan/Documents/kir/Telephelyek/CLASSIC/CSONGRÁD  Kossuth tér 6.         2017-2018. tanév.xls";
     public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
     public String DEST_SZILVER = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
     public int rossz;
+    public int nincsMeg;
     public boolean egyoszlop = true;
 
 
         public static final int sajatNev = 2;
 
-        public static final int sajatAnya = 8;
-        public static final int sajatSzuletes = 7;
-        public static final int sajatAzonosito = 5;
+        int sajatAnya = 8;
+        int sajatSzuletes = 7;
+        int sajatAzonosito = 5;
+
 
         public boolean datumcsere = true;
 
-    public boolean read() {
+    public boolean read() throws IOException {
         rossz = 0;
+        nincsMeg = 0;
 
-
-        final int sajatnev1 = 3;
+        if (egyoszlopos(DEST)){
+            sajatAnya--;
+            sajatSzuletes--;
+            sajatAzonosito--;
+        }
 
         WriteExcel writeExcel = new WriteExcel();
 
@@ -86,8 +94,7 @@ public class ReadExcel {
                             index = 1;
                         }
                         kiszur = 0;
-                        String ellenorzo = row.cellIterator().next().toString();
-                        ellenorzo = ellenorzo.replace(".","");
+
 
                         if (row.cellIterator().hasNext()) {
 
@@ -95,6 +102,8 @@ public class ReadExcel {
                                 //System.out.println(row.cellIterator().next().toString());
                                 break;
                             }
+                            String ellenorzo = row.cellIterator().next().toString();
+                            ellenorzo = ellenorzo.replace(".","");
                             if (!isInteger(ellenorzo)){
                                 //System.out.println(row.cellIterator().next().toString());
                                 //System.out.println("BREAK");
@@ -116,54 +125,51 @@ public class ReadExcel {
                             Cell cellData = cellIterator.next();
  //                            todo work with the data
                             j++;
-                            switch (j) {
+
 //                                case 1:
 //                                    if (cellData.toString() == ""){
 //                                        System.out.println("BREAK " + index);
 //                                        break outerloop;
 //                                    }
 //                                    break;
-                                case sajatAzonosito:
+                                if (j == sajatAzonosito) {
                                     String string = cellData.toString();
-                                    if (string.indexOf('.') != 0){
-                                        string = string.replace(".","");
+                                    if (string.indexOf('.') != 0) {
+                                        string = string.replace(".", "");
                                         string = string.replace("E10", "");
-                                        string = string.replace("E9","");
+                                        string = string.replace("E9", "");
                                     }
-                                    while (string.length() != 11){
+                                    while (string.length() != 11) {
                                         string += "0";
                                     }
 
-                                    if (string.indexOf('7') !=0 ){
+                                    if (string.indexOf('7') != 0) {
                                         System.out.println("HIBA!!!: " + string);
                                     }
 
-                                    if (letezikeMar(string, index)){
+                                    if (letezikeMar(string, index)) {
                                         System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index + "\n");
                                         string += "HIBA";
                                         tanulo[index].setAzonosito(string);
-                                    }else {
+                                    } else {
                                         tanulo[index].setAzonosito(string);
                                     }
-                                    break;
-                                case sajatNev:
+                                }
+
+                                if (j == sajatNev) {
                                     String neve = cellData.toString();
                                     neve = replaceAtTheEnd(neve);
                                     tanulo[index].setNev(neve);
-                                    break;
-                                case sajatAnya:
+                                }
+
+                                if (j == sajatAnya) {
                                     tanulo[index].setAnyanev(cellData.toString());
-                                    break;
-                                case sajatSzuletes:
+                                }
+
+                                if (j == sajatSzuletes) {
                                     tanulo[index].setSzuletes(cellData.toString());
-                                    break;
+                                }
 
-
-
-
-                                default:
-                                    break;
-                            }
                         }
 
                         //////VEGIG MEGYEK A KIR sorain
@@ -253,6 +259,7 @@ public class ReadExcel {
 
 
                         if (!megvan){
+                            nincsMeg++;
                             System.out.println("Nem talaltam meg az exportba: \n" + tanulo[index].getNev() +
                                     "\n" + tanulo[index].getAzonosito() + "\n");
                         }
@@ -263,6 +270,13 @@ public class ReadExcel {
                 }
 
                 //System.out.println(i);
+                if (i == workbook.getNumberOfSheets() - 1){
+                    if (!workbook.getSheetName(i).contentEquals("Ö.2017.")) {
+                        System.out.println("Ebben az excelbe nem létezik Ö.2017. lap");
+                        System.out.println("Az utolso lap neve: " + workbook.getSheetName(i));
+                    }
+                    break;
+                }
             }while(!workbook.getSheetName(i).contentEquals("Ö.2017."));
             //for (int i = 0; i < workbook.getNumberOfSheets(); i++){
 
@@ -275,6 +289,7 @@ public class ReadExcel {
 
             //System.out.println("na: " + tanulo[1].getNev());
             System.out.println("\n\nEnnyi nem egyezik: " + rossz);
+            System.out.println("Ennyit nem találtam meg az exportba: " + nincsMeg);
             return true;
         }
         catch (Exception exception) {
@@ -318,6 +333,45 @@ public class ReadExcel {
         }
         // only got here if we didn't return false
         return true;
+    }
+
+
+    public boolean egyoszlopos(String DEST) throws IOException {
+        FileInputStream file = new FileInputStream(new File(DEST));
+        HSSFWorkbook workbook = new HSSFWorkbook(file);
+        HSSFSheet sheet = workbook.getSheetAt(0);
+        boolean az = true;
+        int kiszur = 5;
+
+        for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
+            Row row = rowIterator.next();
+            int j = 0;
+            if (index > kiszur) {
+                if (kiszur == 5) {
+                    index = 1;
+                }
+                kiszur = 0;
+
+
+                for (Iterator<Cell> cellIterator = row.cellIterator(); cellIterator.hasNext(); ) {
+                    Cell cellData = cellIterator.next();
+                    j++;
+                    if (j == 4) {
+                        if (cellData.toString().length() < 4) {
+                            System.out.println(cellData.toString());
+                            az = false;
+                        }
+                    }
+                }
+            }
+        }
+        file.close();
+
+        if (az){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }
