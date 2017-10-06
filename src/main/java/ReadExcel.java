@@ -148,6 +148,8 @@ public class ReadExcel {
                                         string = string.replace("E10", "");
                                         string = string.replace("E9", "");
                                     }
+
+
                                     while (string.length() != 11) {
                                         string += "0";
                                     }
@@ -158,9 +160,9 @@ public class ReadExcel {
                                     }
 
                                     if (letezikeMar(string, index)) {
-                                        System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index + "\n");
-                                        System.out.println("Nev: " + tanulo[i].getNev() + "\n");
-                                        string += "HIBA";
+                                        System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index);
+                                        System.out.println("Nev: " + tanulo[i].getNev() + "\n" + "\n");
+                                        //string += "HIBA";
                                         tanulo[index].setAzonosito(string);
                                     } else {
                                         tanulo[index].setAzonosito(string);
