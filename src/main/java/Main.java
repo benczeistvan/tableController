@@ -42,7 +42,7 @@ public class Main {
             }
         }
 
-
+        System.out.println("PROGRAM EXIT");
 
     }
 }

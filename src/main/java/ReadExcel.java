@@ -20,6 +20,7 @@ import java.util.*;
 public class ReadExcel {
 
     public Tanulo tanulo[] = new Tanulo[3400];
+    public HibasTanulo hibasTanulo[] = new HibasTanulo[300];
     public int index;
     //public String DEST = "/Users/istvan/Documents/kir/Telephelyek/CLASSIC/CSONGRÁD  Kossuth tér 6.         2017-2018. tanév.xls";
     //public String DEST_CLASSIC = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
@@ -27,6 +28,8 @@ public class ReadExcel {
     public int rossz;
     public int nincsMeg;
     public boolean egyoszlop = true;
+
+    public int ismetloIndex;
 
 
         public static final int sajatNev = 2;
@@ -40,6 +43,8 @@ public class ReadExcel {
     public boolean read(String DEST, String szilverClassic) throws IOException {
         rossz = 0;
         nincsMeg = 0;
+        int hibasTanuloIndex = 0;
+
 
         if (egyoszlopos(DEST)){
             System.out.println("Egy oszlopos");
@@ -73,7 +78,11 @@ public class ReadExcel {
                 tanulo[i] = new Tanulo();
             }
 
-            int i = -1;
+            for (int i = 0; i < 300; i++){
+                hibasTanulo[i] = new HibasTanulo();
+            }
+
+            int i = -1; ///AZ i az a lapok indexe
             //outerloop:
             do {
                 start:
@@ -86,7 +95,8 @@ public class ReadExcel {
                 }
 
                 index = 0;
-                int j = 0;
+                // Ez egy lapon beluli sor indexe de 6-ot levag mert onnan kezdodnek a diakok ezert majd a diakok sorszama lesz
+                int j = 0; //ez az oszlop indexe
                 int kiszur = 5;
                 String sorszam = ""; //HA NULLA MARAD AZ HIBA
                 //////////////
@@ -96,6 +106,7 @@ public class ReadExcel {
                 //outerloop:
                 for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
                     row = rowIterator.next();
+                    boolean hibasOM = false;
                     index++;
                     j = 0;
                     if (index > kiszur){
@@ -155,16 +166,41 @@ public class ReadExcel {
                                     }
 
                                     if (string.indexOf('7') != 0) {
-                                        System.out.println("HIBA!!!: " + string);
-                                        System.out.println(tanulo[index].getNev() + "\n");
+                                        //System.out.println("HIBA!!!: " + string);
+                                        //System.out.println(tanulo[index].getNev() + "\n");
                                     }
 
-                                    if (letezikeMar(string, index)) {
+//                                    if (string.contentEquals("00000000000")){
+//                                        System.out.println("Hianyzó OM");
+//                                        System.out.println(tanulo[index].getNev() + "\n");
+//                                    }
+
+                                    if (letezikeMar(string, index) && !string.contentEquals("00000000000")) {
                                         System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index);
+                                        System.out.println("lap: " + i);
                                         System.out.println("Nev: " + tanulo[i].getNev() + "\n" + "\n");
                                         //string += "HIBA";
-                                        tanulo[index].setAzonosito(string);
-                                    } else {
+                                        //tanulo[index].setAzonosito(string);
+
+                                        //lehet hogy ismetloindex
+                                        atmasolRosszba(i, ismetloIndex);
+                                        tanulo[ismetloIndex].setHibas(true);
+                                        hibasTanuloIndex++;
+
+                                        //IDE MEG KELL AZ UJAT IS BELETENNI A HIBASTANULOBA
+                                        hibasTanulo[hibasTanuloIndex].setAzonosito(string);
+                                        tanulo[index].setHibas(true);
+                                        hibasTanulo[hibasTanuloIndex].setNev(tanulo[index].getNev());
+
+                                    } else
+                                        if (string.contentEquals("00000000000")){
+                                            System.out.println("Hianyzó OM");
+                                            System.out.println(tanulo[index].getNev() + "\n");
+
+                                            tanulo[index].setHibas(true);
+                                            //IDE MEG KELL AZ UJAT IS BELETENNI A HIBASTANULOBA
+                                        }
+                                        else{
                                         tanulo[index].setAzonosito(string);
                                     }
                                 }
@@ -176,15 +212,25 @@ public class ReadExcel {
                                 }
 
                                 if (j == sajatAnya) {
-                                    tanulo[index].setAnyanev(cellData.toString());
+                                    if (!tanulo[index].isHibas()) {
+                                        tanulo[index].setAnyanev(cellData.toString());
+                                    }else{
+                                        hibasTanulo[hibasTanuloIndex].setAnyanev(cellData.toString());
+                                    }
                                 }
 
                                 if (j == sajatSzuletes) {
-                                    tanulo[index].setSzuletes(cellData.toString());
+                                    if (!tanulo[index].isHibas()) {
+                                        tanulo[index].setSzuletes(cellData.toString());
+                                    }else{
+                                        hibasTanulo[hibasTanuloIndex].setSzuletes(cellData.toString());
+                                    }
                                 }
 
                         }
-
+                        if (tanulo[index].isHibas()){
+                            hibasTanuloIndex++;
+                        }
                         //////VEGIG MEGYEK A KIR sorain
                         boolean megvan = false;
                         for (Iterator<Row> rowExportIterator = sheetExport.iterator(); rowExportIterator.hasNext();){
@@ -194,8 +240,8 @@ public class ReadExcel {
 
                             //string.indexOf('a')
 
-
-                            if (azonositoExport.contentEquals(tanulo[index].getAzonosito())){
+                            //////ITT KELL ELLENORIZNI HOGY HIBASE
+                            if (azonositoExport.contentEquals(tanulo[index].getAzonosito()) && !tanulo[index].isHibas()){
                                 megvan = true;
                                //System.out.println(index + " " + tanulo[index].getAzonosito());
                                 int k = 0;
@@ -273,6 +319,9 @@ public class ReadExcel {
 
                         if (!megvan){
                             nincsMeg++;
+                            tanulo[index].setHibas(true);
+                            atmasolRosszba(index, hibasTanuloIndex);
+                            hibasTanuloIndex++;
                             System.out.println("Nem talaltam meg az exportba: \n" + tanulo[index].getNev() +
                                     "\n" + tanulo[index].getAzonosito() + "\n");
                         }
@@ -305,6 +354,7 @@ public class ReadExcel {
             //System.out.println("na: " + tanulo[1].getNev());
             System.out.println("\n\nEnnyi nem egyezik: " + rossz);
             System.out.println("Ennyit nem találtam meg az exportba: " + nincsMeg);
+            System.out.println("Ennyinek hibás az OM számja: " + hibasTanuloIndex);
             file.close();
             fileExport.close();
             return true;
@@ -328,6 +378,7 @@ public class ReadExcel {
         for (int i = 1; i < index; i++){
             if (tanulo[i].getAzonosito().toString().contentEquals(string) &&
                     !tanulo[index].getNev().toString().contentEquals(tanulo[i].getNev().toString())){
+                ismetloIndex = i;
                 nemLetezik = false;
             }
         }
@@ -338,6 +389,16 @@ public class ReadExcel {
             return false;
         }
     }
+
+    public boolean atmasolRosszba(int tanuloIndex, int hibasTanuloIndex){
+        System.out.println(tanulo[tanuloIndex].getNev());
+        hibasTanulo[hibasTanuloIndex].setNev(tanulo[tanuloIndex].getNev());
+        hibasTanulo[hibasTanuloIndex].setAzonosito(tanulo[tanuloIndex].getAzonosito());
+        hibasTanulo[hibasTanuloIndex].setAnyanev(tanulo[tanuloIndex].getAnyanev());
+        hibasTanulo[hibasTanuloIndex].setSzuletes(tanulo[tanuloIndex].getSzuletes());
+        return true;
+    }
+
 
     public static boolean isInteger(String s) {
         try {
