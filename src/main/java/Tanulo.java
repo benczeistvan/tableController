@@ -14,6 +14,8 @@ public class Tanulo {
     String beirasinaplo;
     String sornaploszam;
     boolean hibas;
+    int lapszam;
+    int sorszam;
 
     public Tanulo(){
         this.azonosito = "";
@@ -25,7 +27,10 @@ public class Tanulo {
         this.evfolyam = "";
         this.beirasinaplo = "";
         this.sornaploszam = "";
-        hibas = false;
+        this.hibas = false;
+        this.lapszam = 0;
+        this.sorszam = 0;
+
     }
 
     public String getAzonosito() {
@@ -98,5 +103,21 @@ public class Tanulo {
 
     public void setHibas(boolean hibas) {
         this.hibas = hibas;
+    }
+
+    public int getLapszam() {
+        return lapszam;
+    }
+
+    public void setLapszam(int lapszam) {
+        this.lapszam = lapszam;
+    }
+
+    public int getSorszam() {
+        return sorszam;
+    }
+
+    public void setSorszam(int sorszam) {
+        this.sorszam = sorszam;
     }
 }
