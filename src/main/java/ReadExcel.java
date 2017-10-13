@@ -39,7 +39,7 @@ public class ReadExcel {
         int sajatSzuletes = 7;
         int sajatAzonosito = 5;
 
-        public boolean datumcsere = false;
+        public boolean datumcsere = true;
 
     ///////////////////////////READ METÓDUS///////////////////////////////
     //////////////////////////////////////////////////////////////////////
@@ -77,27 +77,25 @@ public class ReadExcel {
 
             //System.out.println(workbook.getNumberOfSheets());
 
-            for (int i = 0; i <3400; i++){
-                tanulo[i] = new Tanulo();
-            }
 
-            for (int i = 0; i < 300; i++){
-                hibasTanulo[i] = new HibasTanulo();
-            }
 
             int i = -1; ///AZ i az a lapok indexe
             //outerloop:
             do {
                 start:
-                i++;
+                i++; //lapszam
+                for (int z = 0; z <3400; z++){
+                    tanulo[z] = new Tanulo();
+                }
+
+                for (int z = 0; z < 300; z++){
+                    hibasTanulo[z] = new HibasTanulo();
+                }
                 HSSFSheet sheet = workbook.getSheetAt(i);
                 //System.out.println(workbook.getSheetName(i).toString());
 
-                if (workbook.getSheetName(i).contentEquals("Ki2017.")){
-                    return true;
-                }
 
-                index = 0;
+                index = 0; //tanulo indexe
                 // Ez egy lapon beluli sor indexe de 6-ot levag mert onnan kezdodnek a diakok ezert majd a diakok sorszama lesz
                 int j = 0; //ez az oszlop indexe
                 int kiszur = 5;
@@ -181,7 +179,7 @@ public class ReadExcel {
                                     if (letezikeMar(string, index) && !string.contentEquals("00000000000")) {
                                         System.out.println("Ez az OM már létezik!: " + string + "\nIndex: " + index);
                                         System.out.println("lap: " + i);
-                                        System.out.println("Nev: " + tanulo[i].getNev() + "\n" + "\n");
+                                        //System.out.println("Nev: " + tanulo[index].getNev() + "\n" + "\n");
                                         //string += "HIBA";
                                         //tanulo[index].setAzonosito(string);
 
@@ -190,12 +188,18 @@ public class ReadExcel {
                                         tanulo[ismetloIndex].setHibas(true);
                                         hibasTanuloIndex++;
 
+                                        //System.out.println("hibasTanuloIndex++1");
+
                                         //IDE TESZEM A MOSTANIT AKIVEL KAPTAM EGYFORMAT
                                         hibasTanulo[hibasTanuloIndex].setAzonosito(string);
                                         tanulo[index].setHibas(true);
                                         hibasTanulo[hibasTanuloIndex].setNev(tanulo[index].getNev());
                                         hibasTanulo[hibasTanuloIndex].setSorszam(index);
                                         hibasTanulo[hibasTanuloIndex].setLapszam(i);
+
+                                        System.out.println("Ennek a két tanulónak ugyanaz az OM számja: " );
+                                        System.out.println(tanulo[ismetloIndex].getNev());
+                                        System.out.println(hibasTanulo[hibasTanuloIndex].getNev() + "\n\n");
 
                                     } else
                                         if (string.contentEquals("00000000000")){
@@ -237,6 +241,7 @@ public class ReadExcel {
                         }
                         if (tanulo[index].isHibas()){
                             hibasTanuloIndex++;
+                            //System.out.println("hibasTanuloIndex++2");
                         }
                         //////VEGIG MEGYEK A KIR sorain
                         KIRellenorzes(sheetExport, writeExcel, i, DEST);
@@ -255,8 +260,12 @@ public class ReadExcel {
                     break;
                 }
 
+                if (workbook.getSheetName(i).contentEquals("Ki2017.")){
+                    break;
+                }
 
-            }while(!workbook.getSheetName(i).contentEquals("Ö.2017."));
+
+            }while(!workbook.getSheetName(i).contentEquals("Ö.2017.") && !workbook.getSheetName(i).contentEquals("Ö.2017"));
             //for (int i = 0; i < workbook.getNumberOfSheets(); i++){
 
 
@@ -319,7 +328,7 @@ public class ReadExcel {
     //  ATMASOLROSSZBA
 
     public boolean atmasolRosszba(int tanuloIndex, int hibasTanuloIndex){
-        System.out.println(tanulo[tanuloIndex].getNev());
+        //System.out.println(tanulo[tanuloIndex].getNev());
         hibasTanulo[hibasTanuloIndex].setNev(tanulo[tanuloIndex].getNev());
         hibasTanulo[hibasTanuloIndex].setAzonosito(tanulo[tanuloIndex].getAzonosito());
         hibasTanulo[hibasTanuloIndex].setAnyanev(tanulo[tanuloIndex].getAnyanev());
@@ -356,7 +365,7 @@ public class ReadExcel {
         HSSFWorkbook workbook = new HSSFWorkbook(file);
         HSSFSheet sheet = workbook.getSheetAt(0);
         boolean az = false;
-        int kiszur = 5;
+        int kiszur = 7;
         int sajatIndex= 0;
 
         overloop:
@@ -484,11 +493,11 @@ public class ReadExcel {
         }
 
 
-        if (!megvan){
+        if (!megvan && !tanulo[index].isHibas()){
             nincsMeg++;
             tanulo[index].setHibas(true);
             atmasolRosszba(index, hibasTanuloIndex);
-            hibasTanuloIndex++;
+            //hibasTanuloIndex++;
             System.out.println("Nem talaltam meg az exportba: \n" + tanulo[index].getNev() +
                     "\n" + tanulo[index].getAzonosito() + "\n");
         }
@@ -537,7 +546,12 @@ public class ReadExcel {
 
                                 case 3:
                                     if (megvanNev && megvanAnya){
+                                        System.out.println("Megtaláltam ennek a diák azonosítóját:" + hibasTanulo[hibasTanulo_i].getNev());
+                                        System.out.println("Akinek az anyja: " + hibasTanulo[hibasTanulo_i].getAnyanev());
                                         hibasTanulo[hibasTanulo_i].setAzonosito(ujAzonosito);
+                                        hibasTanulo[hibasTanulo_i].setSzuletes(cellExportData.toString());
+
+                                                //KELL WRITEOLNI IS
 
                                         //////////////////KIR ELLENORZES (BORZASZTO MEGOLDAS...)
                                         /////////////////////////////////////////////////////

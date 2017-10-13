@@ -22,19 +22,24 @@ public class Main {
 //            System.out.println("Read oke");
 //        }
 
-        String melyiken = "CLASSIC";
+        String melyiken = "SZILVER";
 
-        String destination = "/Users/istvan/Documents/kir/Telephelyek/";
-        destination += melyiken + "/";
+        //String destination = "/Users/istvan/Documents/kir/Telephelyek/";
+        //destination += melyiken + "/";
 
-        String szilverClassic = "/Users/istvan/GitHub/tableController/src/main/java/";
-        szilverClassic += melyiken + ".xls";
+
+        //String szilverClassic = "/Users/istvan/GitHub/tableController/src/main/java/";
+        //szilverClassic += melyiken + ".xls";
+
+        String szilverClassic = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
+        String destination = "/Users/istvan/Documents/kir/Telephelyek/Rossz/";
 
         File path = new File(destination);
 
         File [] files = path.listFiles();
-        for (int i = 1; i < files.length; i++){
-            if (files[i].isFile()){ //this line weeds out other directories/folders
+        for (int i = 0; i < files.length; i++){
+            //a mac-es DS storet is kikell szurni...
+            if (files[i].isFile() && files[i].toString().indexOf("DS_Store") == -1){ //this line weeds out other directories/folders
                 System.out.println("\nFile: " + files[i]);
                 if (readExcel.read(files[i].toString(), szilverClassic) == true){
                     System.out.println("Read oke\n\n");
