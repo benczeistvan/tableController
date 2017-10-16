@@ -288,7 +288,7 @@ public class ReadExcel {
         }
         catch (Exception exception) {
 
-            System.out.println("HIBA BASSZAMEG: " + exception);
+            System.out.println("PROGRAM HIBA: " + exception);
         }
         return false;
     }

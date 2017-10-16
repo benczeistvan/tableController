@@ -22,7 +22,7 @@ public class Main {
 //            System.out.println("Read oke");
 //        }
 
-        String melyiken = "SZILVER";
+        //String melyiken = "SZILVER";
 
         //String destination = "/Users/istvan/Documents/kir/Telephelyek/";
         //destination += melyiken + "/";
