@@ -84,6 +84,11 @@ public class ReadExcel {
             do {
                 start:
                 i++; //lapszam
+
+                if (workbook.getSheetName(i).contentEquals("Gyv.2017.")){
+                    break;
+                }
+
                 for (int z = 0; z <3400; z++){
                     tanulo[z] = new Tanulo();
                 }
@@ -263,6 +268,7 @@ public class ReadExcel {
                 if (workbook.getSheetName(i).contentEquals("Ki2017.")){
                     break;
                 }
+
 
 
             }while(!workbook.getSheetName(i).contentEquals("Ö.2017.") && !workbook.getSheetName(i).contentEquals("Ö.2017"));
