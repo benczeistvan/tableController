@@ -3,10 +3,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +28,7 @@ public class ReadExcel {
 
     public int ismetloIndex;
     public int hibasTanuloIndex = 0;
+    int osztaly = 0;
 
 
         public static final int sajatNev = 2;
@@ -39,7 +37,8 @@ public class ReadExcel {
         int sajatSzuletes = 7;
         int sajatAzonosito = 5;
 
-        public boolean datumcsere = true;
+        public boolean datumcsere = false;
+        public boolean sorszambeiras = false;
 
     ///////////////////////////READ METÓDUS///////////////////////////////
     //////////////////////////////////////////////////////////////////////
@@ -49,16 +48,31 @@ public class ReadExcel {
         hibasTanuloIndex = 0;
 
 
+
         if (egyoszlopos(DEST)){
             System.out.println("Egy oszlopos");
             sajatAnya = 7;
             sajatSzuletes = 6;
             sajatAzonosito = 4;
+            osztaly = -1;
         }else{
             System.out.println("Ket oszlopos");
             sajatAnya = 8;
             sajatSzuletes = 7;
             sajatAzonosito = 5;
+            osztaly = 0;
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int torzslap_sorszam;
+
+        if (sorszambeiras) {
+            System.out.print("Kérem az első törzslap sorszámot!: ");
+            String s = br.readLine();
+            torzslap_sorszam = Integer.parseInt(s);
+            //torzslap_sorszam -= 1;
+            System.out.println("\nRendben\n");
         }
 
         WriteExcel writeExcel = new WriteExcel();
@@ -79,11 +93,14 @@ public class ReadExcel {
 
 
 
-            int i = -1; ///AZ i az a lapok indexe
+            int i = 0; ///AZ i az a lapok indexe
             //outerloop:
-            do {
+            while(!workbook.getSheetName(i).contentEquals("Ö.2017.") && !workbook.getSheetName(i).contentEquals("Ö.2017") &&
+                    !workbook.getSheetName(i).contentEquals("Gyv.2017."))
+            {
                 start:
-                i++; //lapszam
+
+                System.out.println(workbook.getSheetName(i) + " osztaly");
 
                 if (workbook.getSheetName(i).contentEquals("Gyv.2017.")){
                     break;
@@ -110,10 +127,12 @@ public class ReadExcel {
                 ////////////
                 Row row;
                 //outerloop:
+                //torzslap_sorszam -= 5;
                 for (Iterator<Row> rowIterator = sheet.iterator(); rowIterator.hasNext();) {
                     row = rowIterator.next();
                     boolean hibasOM = false;
                     index++;
+
                     j = 0;
                     if (index > kiszur){
                         if (kiszur == 5) {
@@ -243,7 +262,43 @@ public class ReadExcel {
                                     }
                                 }
 
+                                if (j == 6 + osztaly){
+                                    if (cellData.toString().toLowerCase().contains(".") || cellData.toString().toLowerCase().contains("/") || cellData.toString().toLowerCase().contains("(")) {
+                                        System.out.println("\nKülföldi van benne! Neve: " + tanulo[index].getNev() + " " + tanulo[index].getAzonosito()
+                                        + "\nhelység: " + cellData.toString());
+                                        System.out.print("adja meg a helyes helységet:");
+                                        String input = br.readLine();
+                                        writeExcel.write(input.toString(), index + 5, 6 + osztaly, i, DEST);
+                                    }
+
+                                    if (cellData.toString().length() < 2){
+                                        System.out.println("Nincs születési hely adat: " + tanulo[index].getNev() + " " + tanulo[index].getAzonosito());
+                                        System.out.println("Kérem adja meg: ");
+                                        String input = br.readLine();
+                                        writeExcel.write(input.toString(), index + 5, 6 + osztaly, i, DEST);
+                                    }
+                                }
+
+                                if (j == 8){
+                                    break;
+                                }
+
+//                                if (j == 30 + osztaly) {
+//                                    String torzslap_sorszam_string = "ÁNY N ";
+//                                    torzslap_sorszam_string += torzslap_sorszam;
+//                                    writeExcel.write(torzslap_sorszam_string, index + 5, 30 + osztaly, i, DEST);
+//                                }
+
                         }
+
+                        if (sorszambeiras) {
+                            String torzslap_sorszam_string = "ÁNY N 0";
+                            torzslap_sorszam_string += torzslap_sorszam;
+                            //System.out.println(torzslap_sorszam_string);
+                            writeExcel.write(torzslap_sorszam_string, index + 5, 31 + osztaly, i, DEST);
+                            torzslap_sorszam++;
+                        }
+
                         if (tanulo[index].isHibas()){
                             hibasTanuloIndex++;
                             //System.out.println("hibasTanuloIndex++2");
@@ -270,8 +325,9 @@ public class ReadExcel {
                 }
 
 
-
-            }while(!workbook.getSheetName(i).contentEquals("Ö.2017.") && !workbook.getSheetName(i).contentEquals("Ö.2017"));
+                System.out.println(workbook.getSheetName(i) + " KESZ\n");
+                i++; //lapszam
+            }
             //for (int i = 0; i < workbook.getNumberOfSheets(); i++){
 
 
@@ -285,6 +341,8 @@ public class ReadExcel {
             System.out.println("\n\nEnnyi nem egyezik: " + rossz);
             System.out.println("Ennyit nem találtam meg az exportba: " + nincsMeg);
             System.out.println("Ennyinek hibás az OM számja: " + hibasTanuloIndex);
+            torzslap_sorszam--;
+            System.out.println("Az utolsó törzslap sorszám: ÁNY N 0" + torzslap_sorszam);
 
 
 
