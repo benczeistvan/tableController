@@ -31,7 +31,7 @@ public class Main {
         //String szilverClassic = "/Users/istvan/GitHub/tableController/src/main/java/";
         //szilverClassic += melyiken + ".xls";
 
-        String szilverClassic = "/Users/istvan/GitHub/tableController/src/main/java/SZILVER.xls";
+        String szilverClassic = "/Users/istvan/GitHub/tableController/src/main/java/CLASSIC.xls";
         String destination = "/Users/istvan/Documents/kir/Telephelyek/proba/";
 
         File path = new File(destination);

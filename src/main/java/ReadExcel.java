@@ -37,7 +37,7 @@ public class ReadExcel {
         int sajatSzuletes = 7;
         int sajatAzonosito = 5;
 
-        public boolean datumcsere = false;
+        public boolean datumcsere = true;
         public boolean sorszambeiras = false;
 
     ///////////////////////////READ METÓDUS///////////////////////////////
@@ -65,7 +65,7 @@ public class ReadExcel {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int torzslap_sorszam;
+        int torzslap_sorszam = 0;
 
         if (sorszambeiras) {
             System.out.print("Kérem az első törzslap sorszámot!: ");
@@ -292,7 +292,10 @@ public class ReadExcel {
                         }
 
                         if (sorszambeiras) {
-                            String torzslap_sorszam_string = "ÁNY N 0";
+                            String torzslap_sorszam_string = "ÁNY N 00";
+                            if (torzslap_sorszam == 0){
+                                System.out.println("HIBA");
+                            }
                             torzslap_sorszam_string += torzslap_sorszam;
                             //System.out.println(torzslap_sorszam_string);
                             writeExcel.write(torzslap_sorszam_string, index + 5, 31 + osztaly, i, DEST);
@@ -342,7 +345,9 @@ public class ReadExcel {
             System.out.println("Ennyit nem találtam meg az exportba: " + nincsMeg);
             System.out.println("Ennyinek hibás az OM számja: " + hibasTanuloIndex);
             torzslap_sorszam--;
-            System.out.println("Az utolsó törzslap sorszám: ÁNY N 0" + torzslap_sorszam);
+            if (sorszambeiras) {
+                System.out.println("Az utolsó törzslap sorszám: ÁNY N 0" + torzslap_sorszam);
+            }
 
 
 
